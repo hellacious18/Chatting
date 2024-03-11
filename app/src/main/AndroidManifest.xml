@@ -17,7 +17,7 @@
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         tools:replace="android:appComponentFactory">
         <activity
-            android:name=".homeUser"
+            android:name=".HomeUserActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

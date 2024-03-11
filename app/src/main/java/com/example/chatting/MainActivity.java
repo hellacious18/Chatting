@@ -93,9 +93,8 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Intent intent = new Intent(MainActivity.this, HomeUserActivity.class);
-                            intent.putExtra("user_email", acct.getEmail());
-                            startActivity(intent);
+                            startNextActivity();
+                            // Update UI or navigate to the next screen
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -103,5 +102,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void startNextActivity() {
+        Intent intent = new Intent(MainActivity.this, HomeUserActivity.class);
+        startActivity(intent);
     }
 }
