@@ -1,6 +1,6 @@
 package com.example.chatting;
 
-public class users {
+public class userModel {
     private String userId;
     private String displayName;
     private String photoUrl;

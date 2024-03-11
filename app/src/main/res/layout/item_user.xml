@@ -8,12 +8,14 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="20dp"
+        android:src="@drawable/img"
         android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/displayNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:text="Name"
         android:textSize="20dp"
         android:textStyle="bold" />

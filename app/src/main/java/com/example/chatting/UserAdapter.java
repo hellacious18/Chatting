@@ -12,15 +12,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private List<users> userList;
-
-    public UserAdapter(List<users> userList) {
-        this.userList = userList;
+    private List<userModel> userList;
+    public UserAdapter(){
     }
+    public UserAdapter(List<userModel> userList) {
+        this.userList = new ArrayList<>(userList);
+    }
+
+
+
+//    public UserAdapter(List<userModel> userList) {
+//        this.userList = userList;
+//    }
 
     @NonNull
     @Override
@@ -32,7 +40,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        users users = userList.get(position);
+        userModel users = userList.get(position);
         holder.bind(users);
     }
 
@@ -52,10 +60,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             displayNameTextView = itemView.findViewById(R.id.displayNameTextView);
         }
 
-        public void bind(users user) {
-            displayNameTextView.setText(user.getDisplayName());
-            Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img);
-            // Placeholder image while loading.into(profileImageView);
+        public void bind(userModel user) {
+            if (user != null) {
+                displayNameTextView.setText(user.getDisplayName());
+                Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img).into(profileImageView);
+//            displayNameTextView.setText(user.getDisplayName());
+//            Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img).into(profileImageView);
+//            // Placeholder image while loading.into(profileImageView);
+            }
         }
     }
 }
