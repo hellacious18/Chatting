@@ -10,21 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private List<userModel> userList;
-    public UserAdapter(){
-    }
-    public UserAdapter(List<userModel> userList) {
-        this.userList = new ArrayList<>(userList);
-    }
+    private ArrayList<userModel> userList;
+    Context context;
 
-
+    public UserAdapter(ArrayList<userModel> userList, Context context) {
+        this.userList = userList;
+        this.context = context;
+    }
 
 //    public UserAdapter(List<userModel> userList) {
 //        this.userList = userList;
@@ -33,7 +29,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
         View view = LayoutInflater.from(context).inflate(R.layout.item_user, parent, false);
         return new UserViewHolder(view);
     }
@@ -63,10 +58,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         public void bind(userModel user) {
             if (user != null) {
                 displayNameTextView.setText(user.getDisplayName());
-                Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img).into(profileImageView);
+                //Glide.with(context).load(user.getPhotoUrl()).circleCrop();
 //            displayNameTextView.setText(user.getDisplayName());
-//            Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img).into(profileImageView);
-//            // Placeholder image while loading.into(profileImageView);
+           // Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img).into(profileImageView);
+            // Placeholder image while loading.into(profileImageView);
             }
         }
     }
