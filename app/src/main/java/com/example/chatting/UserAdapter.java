@@ -10,21 +10,27 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private ArrayList<userModel> userList;
-    Context context;
+    private Context context;
+    private List<userModel> users;
+    private OnUserClickListener listener;
 
-    public UserAdapter(ArrayList<userModel> userList, Context context) {
-        this.userList = userList;
+    // Constructor
+    public UserAdapter(Context context, List<userModel> users, OnUserClickListener listener) {
         this.context = context;
+        this.users = users;
+        this.listener = listener;
     }
 
-//    public UserAdapter(List<userModel> userList) {
-//        this.userList = userList;
-//    }
+    public interface OnUserClickListener {
+        void onUserClick(userModel user);
+    }
 
     @NonNull
     @Override
@@ -35,33 +41,44 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        userModel users = userList.get(position);
-        holder.bind(users);
+        userModel user = users.get(position);
+        holder.bind(user);
     }
 
     @Override
     public int getItemCount() {
-        return userList.size();
+        return users.size();
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-
-        private ImageView profileImageView;
-        private TextView displayNameTextView;
+        TextView userName;
+        ImageView userPhoto;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-            profileImageView = itemView.findViewById(R.id.profileImageView);
-            displayNameTextView = itemView.findViewById(R.id.displayNameTextView);
+            userName = itemView.findViewById(R.id.displayNameTextView);
+            userPhoto = itemView.findViewById(R.id.profileImageView);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getBindingAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        userModel clickedUser = users.get(position);
+                        listener.onUserClick(clickedUser);
+                    }
+                }
+            });
         }
 
         public void bind(userModel user) {
             if (user != null) {
-                displayNameTextView.setText(user.getDisplayName());
-                //Glide.with(context).load(user.getPhotoUrl()).circleCrop();
-//            displayNameTextView.setText(user.getDisplayName());
-           // Glide.with(itemView.getContext()).load(user.getPhotoUrl()).circleCrop().placeholder(R.drawable.img).into(profileImageView);
-            // Placeholder image while loading.into(profileImageView);
+                userName.setText(user.getDisplayName());
+                Glide.with(context)
+                        .load(user.getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .placeholder(R.drawable.img)
+                        .into(userPhoto);
             }
         }
     }

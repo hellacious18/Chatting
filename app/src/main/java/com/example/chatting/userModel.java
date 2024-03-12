@@ -1,6 +1,15 @@
 package com.example.chatting;
 
-public class userModel {
+import java.io.Serializable;
+
+public class userModel implements Serializable {
+    public userModel(){}
+    public userModel(String userId, String displayName, String photoUrl) {
+        this.userId = userId;
+        this.displayName = displayName;
+        this.photoUrl = photoUrl;
+    }
+
     private String userId;
     private String displayName;
     private String photoUrl;

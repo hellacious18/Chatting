@@ -51,7 +51,7 @@ dependencies {
     implementation ("androidx.core:core:1.9.0")
 
 
-//    implementation ("com.firebaseui:firebase-ui-database:8.0.2")
+    implementation ("com.firebaseui:firebase-ui-database:8.0.2")
 //    implementation ("com.firebaseui:firebase-ui-auth:8.0.2")
 //    implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
 //    implementation ("com.firebaseui:firebase-ui-storage:8.0.2")
@@ -59,8 +59,8 @@ dependencies {
    // implementation ("com.android.support:recyclerview-v7:28.0.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
 
-    implementation ("com.github.bumptech.glide:glide:4.12.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
 
 
 }

@@ -4,16 +4,19 @@
     <value>
       <entry key="app">
         <State>
-          <runningDeviceTargetsSelectedWithDialog>
+          <runningDeviceTargetSelectedWithDropDown>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\helly\.android\avd\Pixel_7_Pro_API_30_1.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="28171FDH3009KB" />
                 </Key>
               </deviceKey>
             </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-03-12T23:42:37.082169Z" />
+          <runningDeviceTargetsSelectedWithDialog>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
@@ -30,7 +33,7 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\helly\.android\avd\Pixel_7_Pro_API_30_1.avd" />
+                  <value value="C:\Users\helly\.android\avd\Samsung.avd" />
                 </Key>
               </deviceKey>
             </Target>

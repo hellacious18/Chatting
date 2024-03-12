@@ -8,19 +8,9 @@
     android:orientation="horizontal"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/signInButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign In with Gooogle"
-        android:layout_centerInParent="true" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
-
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/google_sign_in_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
