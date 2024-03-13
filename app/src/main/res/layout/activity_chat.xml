@@ -11,7 +11,6 @@
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        android:visibility="visible"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true">
@@ -21,15 +20,22 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:id="@+id/backImageView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/back"/>
+
+            <ImageView
                 android:id="@+id/userImageView"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="30dp"
                 android:layout_centerVertical="true"
                 android:src="@drawable/img"/>
 
             <TextView
-                android:id="@+id/usernameTextView"
+                android:id="@+id/userNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@+id/userImageView"

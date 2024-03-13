@@ -1,5 +1,6 @@
 package com.example.chatting;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -39,6 +40,7 @@ public class ChatActivity extends AppCompatActivity {
     private String receiverPhotoUrl;
     TextView receiverNameTextView;
     ImageView receiverPhotoImageView;
+    ImageView backImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +48,16 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         receiverId = getIntent().getStringExtra("userId");
-
         // Get receiver's name and photo from Intent extras
-        receiverName = getIntent().getStringExtra("userName");
+        receiverName = getIntent().getStringExtra("username");
         receiverPhotoUrl = getIntent().getStringExtra("userPhotoUrl");
+        backImageView = findViewById(R.id.backImageView);
+        backImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), HomeUserActivity.class));
+            }
+        });
 
         // Initialize Firebase
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -62,7 +70,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.chatRecyclerView);
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
-        receiverNameTextView = findViewById(R.id.usernameTextView);
+        receiverNameTextView = findViewById(R.id.userNameTextView);
         receiverPhotoImageView = findViewById(R.id.userImageView);
 
         // Set receiver's name and photo
@@ -95,10 +103,20 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 MessageModel message = snapshot.getValue(MessageModel.class);
                 if (message != null) {
-                    messageList.add(message);
-                    chatAdapter.notifyDataSetChanged();
-                    recyclerView.scrollToPosition(messageList.size() - 1);
+                    // Check if the message was sent by the current user
+                    if (!message.getSenderId().equals(currentUserId)) {
+                        // Add the message to the list only if it was sent by the other user
+                        messageList.add(message);
+                        chatAdapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(messageList.size() - 1);
+                    }
                 }
+//                MessageModel message = snapshot.getValue(MessageModel.class);
+//                if (message != null) {
+//                    messageList.add(message);
+//                    chatAdapter.notifyDataSetChanged();
+//                    recyclerView.scrollToPosition(messageList.size() - 1);
+//                }
             }
 
             @Override

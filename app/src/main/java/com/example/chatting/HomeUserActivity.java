@@ -70,10 +70,11 @@ public class HomeUserActivity extends AppCompatActivity {
                         public void onClick(View view) {
                             // Get the clicked user's ID
                             String clickedUserID = getRef(position).getKey();
-
                             // Open ChatActivity with the clicked user's ID
                             Intent intent = new Intent(HomeUserActivity.this, ChatActivity.class);
                             intent.putExtra("userId", clickedUserID);
+                            intent.putExtra("username", model.getDisplayName());
+                            intent.putExtra("userPhotoUrl", model.getPhotoUrl());
                             startActivity(intent);
                         }
                     });

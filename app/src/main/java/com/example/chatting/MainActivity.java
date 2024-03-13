@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             // User is signed in
             Intent intent = new Intent(MainActivity.this, HomeUserActivity.class);
             startActivity(intent);
-            finish();
+            //finish();
             // You can redirect the user to another activity or perform other actions here
         } else {
             // User is signed out
