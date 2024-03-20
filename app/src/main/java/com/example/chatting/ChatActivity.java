@@ -89,10 +89,12 @@ public class ChatActivity extends AppCompatActivity {
         if (receiverId != null) {
             // Single chat mode
             roomId = generateChatRoomID(Arrays.asList(currentUserId, receiverId));
+            chatRoomRef = databaseReference.child("chatRooms").child("singleUserChats").child(roomId);
             initializeSingleChatView();
         } else {
             // Group chat mode
             roomId = generateChatRoomID(getUserIdsFromSelectedUsers(selectedUsers));
+            chatRoomRef = databaseReference.child("chatRooms").child("groupChats").child(roomId);
             initializeGroupChatView();
         }
 
@@ -164,7 +166,7 @@ public class ChatActivity extends AppCompatActivity {
             long timestamp = System.currentTimeMillis();
             String messageId = chatRoomRef.push().getKey();
 
-            MessageModel newMessage = new MessageModel(senderId, receiverId, messageContent, timestamp, messageId);
+            MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 
@@ -173,6 +175,7 @@ public class ChatActivity extends AppCompatActivity {
             messageEditText.setText("");
         }
     }
+
 
     // Method to generate chat room ID based on user IDs
     private String generateChatRoomID(List<String> userIds) {
@@ -209,9 +212,15 @@ public class ChatActivity extends AppCompatActivity {
     // Method to initialize views for group chat mode
     private void initializeGroupChatView() {
         receiverNameTextView = findViewById(R.id.userNameTextView);
+        receiverPhotoImageView = findViewById(R.id.userImageView);
+
         receiverNameTextView.setText(groupName);
-        // Hide receiver photo view since it's a group chat
-        findViewById(R.id.userImageView).setVisibility(View.GONE);
+        RequestOptions requestOptions = new RequestOptions().circleCrop();
+        Glide.with(receiverPhotoImageView)
+                .load(receiverPhotoUrl)
+                .apply(requestOptions)
+                .placeholder(R.drawable.add_image)
+                .into(receiverPhotoImageView);
     }
 
     // Method to sort the message list by timestamp

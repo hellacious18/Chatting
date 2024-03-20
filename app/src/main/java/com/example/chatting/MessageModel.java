@@ -5,7 +5,6 @@ import java.util.Objects;
 
 public class MessageModel implements Serializable {
     private String senderId;
-    private String receiverId;
     private String content;
     private String messageId;
     private long timestamp;
@@ -15,9 +14,8 @@ public class MessageModel implements Serializable {
     }
 
     // Constructor
-    public MessageModel(String senderId, String receiverId, String content, long timestamp, String messageId) {
+    public MessageModel(String senderId, String content, long timestamp, String messageId) {
         this.senderId = senderId;
-        this.receiverId = receiverId;
         this.content = content;
         this.timestamp = timestamp;
         this.messageId = messageId;
@@ -31,13 +29,6 @@ public class MessageModel implements Serializable {
         this.senderId = senderId;
     }
 
-    public String getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(String receiverId) {
-        this.receiverId = receiverId;
-    }
 
     public String getContent() {
         return content;
@@ -67,7 +58,6 @@ public class MessageModel implements Serializable {
     public String toString() {
         return "MessageModel{" +
                 "senderId='" + senderId + '\'' +
-                ", receiverId='" + receiverId + '\'' +
                 ", content='" + content + '\'' +
                 ", messageId='" + messageId + '\'' +
                 ", timestamp=" + timestamp +
@@ -80,13 +70,12 @@ public class MessageModel implements Serializable {
         if (obj == null || getClass() != obj.getClass()) return false;
         MessageModel messageModel = (MessageModel) obj;
         return senderId.equals(messageModel.senderId) &&
-                receiverId.equals(messageModel.receiverId) &&
                 content.equals(messageModel.content) &&
                 messageId.equals(messageModel.messageId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(senderId, receiverId, content, messageId);
+        return Objects.hash(senderId, content, messageId);
     }
 }
