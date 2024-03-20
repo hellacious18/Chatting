@@ -158,11 +158,11 @@ public class HomeUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Ensure that there are selected users
-                if (selectedUsers.isEmpty()) {
-                    // Handle the case where no users are selected
-                    Toast.makeText(HomeUserActivity.this, "No users selected", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (selectedUsers.isEmpty()) {
+//                    // Handle the case where no users are selected
+//                    Toast.makeText(HomeUserActivity.this, "No users selected", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
 
                 // Create an intent to start ChatActivity
                 Intent intent = new Intent(HomeUserActivity.this, ChatActivity.class);

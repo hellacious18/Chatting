@@ -43,6 +43,7 @@ public class ChatActivity extends AppCompatActivity {
     private String receiverId;
     private String receiverName;
     private String receiverPhotoUrl;
+    private String groupName;
     TextView receiverNameTextView;
     ImageView receiverPhotoImageView;
     ImageView backImageView;
@@ -52,17 +53,15 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        // Get receiver's information for single chat
         receiverId = getIntent().getStringExtra("userId");
-        // Get receiver's name and photo from Intent extras
         receiverName = getIntent().getStringExtra("username");
         receiverPhotoUrl = getIntent().getStringExtra("userPhotoUrl");
 
-        String groupName = getIntent().getStringExtra("groupName");
+        // Get group information for group chat
+        groupName = getIntent().getStringExtra("groupName");
         ArrayList<userModel> selectedUsers = (ArrayList<userModel>) getIntent().getSerializableExtra("selectedUsers");
 
-        Log.d("ChatActivity", "Group Name: " + groupName);
-
-        // Log selected users
         if (selectedUsers != null && !selectedUsers.isEmpty()) {
             Log.d("ChatActivity", "Selected Users:");
             for (userModel user : selectedUsers) {
@@ -84,10 +83,18 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserId = currentUser.getUid();
-        String[] userIdsArray = {currentUserId, receiverId};
-        List<String> userIdsList = Arrays.asList(userIdsArray);
-        String roomId = generateChatRoomID(userIdsList);
+        String roomId;
 
+        // Check if it's a single chat or a group chat
+        if (receiverId != null) {
+            // Single chat mode
+            roomId = generateChatRoomID(Arrays.asList(currentUserId, receiverId));
+            initializeSingleChatView();
+        } else {
+            // Group chat mode
+            roomId = generateChatRoomID(getUserIdsFromSelectedUsers(selectedUsers));
+            initializeGroupChatView();
+        }
 
         chatRoomRef = databaseReference.child("chatRooms").child(roomId);
 
@@ -95,16 +102,6 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.chatRecyclerView);
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
-        receiverNameTextView = findViewById(R.id.userNameTextView);
-        receiverPhotoImageView = findViewById(R.id.userImageView);
-
-        // Set receiver's name and photo
-        receiverNameTextView.setText(receiverName);
-        RequestOptions requestOptions = new RequestOptions().circleCrop();
-        Glide.with(receiverPhotoImageView)
-                .load(receiverPhotoUrl)
-                .apply(requestOptions).placeholder(R.drawable.img)
-                .into(receiverPhotoImageView);
 
         // Initialize message list and adapter
         messageList = new ArrayList<>();
@@ -167,31 +164,55 @@ public class ChatActivity extends AppCompatActivity {
             long timestamp = System.currentTimeMillis();
             String messageId = chatRoomRef.push().getKey();
 
-            MessageModel newMessage = new MessageModel(senderId, receiverId, messageContent, timestamp,messageId );
+            MessageModel newMessage = new MessageModel(senderId, receiverId, messageContent, timestamp, messageId);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 
             // Push the message object to Firebase Realtime Database
-            chatRoomRef.push().setValue(newMessage);
+            chatRoomRef.child(messageId).setValue(newMessage);
             messageEditText.setText("");
         }
     }
 
     // Method to generate chat room ID based on user IDs
     private String generateChatRoomID(List<String> userIds) {
-        // Convert the collection to ArrayList to support removal operations
-        ArrayList<String> userIdsList = new ArrayList<>(userIds);
-
-        // Remove null elements from the list before sorting
-        userIdsList.removeIf(userId -> userId == null);
-
-        // Sort the list after removing null elements
-        Collections.sort(userIdsList);
-
+        // Sort the user IDs to ensure consistent room ID generation
+        Collections.sort(userIds);
         // Concatenate user IDs to generate the chat room ID
-        return TextUtils.join("_", userIdsList);
+        return TextUtils.join("_", userIds);
     }
 
+    // Method to get user IDs from selected users in a group chat
+    private List<String> getUserIdsFromSelectedUsers(List<userModel> selectedUsers) {
+        List<String> userIds = new ArrayList<>();
+        for (userModel user : selectedUsers) {
+            userIds.add(user.getUserId());
+        }
+        return userIds;
+    }
+
+    // Method to initialize views for single chat mode
+    private void initializeSingleChatView() {
+        receiverNameTextView = findViewById(R.id.userNameTextView);
+        receiverPhotoImageView = findViewById(R.id.userImageView);
+
+        // Set receiver's name and photo
+        receiverNameTextView.setText(receiverName);
+        RequestOptions requestOptions = new RequestOptions().circleCrop();
+        Glide.with(receiverPhotoImageView)
+                .load(receiverPhotoUrl)
+                .apply(requestOptions)
+                .placeholder(R.drawable.img)
+                .into(receiverPhotoImageView);
+    }
+
+    // Method to initialize views for group chat mode
+    private void initializeGroupChatView() {
+        receiverNameTextView = findViewById(R.id.userNameTextView);
+        receiverNameTextView.setText(groupName);
+        // Hide receiver photo view since it's a group chat
+        findViewById(R.id.userImageView).setVisibility(View.GONE);
+    }
 
     // Method to sort the message list by timestamp
     private void sortMessageListByTimestamp() {
@@ -203,4 +224,3 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 }
-
