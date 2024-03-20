@@ -2,6 +2,7 @@ package com.example.chatting;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -65,7 +67,11 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserId = currentUser.getUid();
-        String roomId = generateChatRoomID(currentUserId, receiverId);
+        String[] userIdsArray = {currentUserId, receiverId};
+        List<String> userIdsList = Arrays.asList(userIdsArray);
+        String roomId = generateChatRoomID(userIdsList);
+
+
         chatRoomRef = databaseReference.child("chatRooms").child(roomId);
 
         // Initialize views
@@ -155,14 +161,14 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     // Method to generate chat room ID based on user IDs
-    private String generateChatRoomID(String userID1, String userID2) {
-        // Example: concatenate user IDs and sort to ensure consistency
-        List<String> ids = new ArrayList<>();
-        ids.add(userID1);
-        ids.add(userID2);
-        ids.sort(String::compareTo);
-        return String.join("_", ids);
+    private String generateChatRoomID(List<String> userIds) {
+        // Sort the user IDs to ensure consistency
+        Collections.sort(userIds);
+
+        // Concatenate the sorted user IDs with an underscore separator
+        return TextUtils.join("_", userIds);
     }
+
 
     // Method to sort the message list by timestamp
     private void sortMessageListByTimestamp() {

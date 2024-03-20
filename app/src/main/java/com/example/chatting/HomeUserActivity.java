@@ -1,10 +1,14 @@
 package com.example.chatting;
 
+import android.app.MediaRouteButton;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -30,11 +35,16 @@ public class HomeUserActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private String currentUserID;
+    FloatingActionButton createGroup, newGroup;
+    EditText groupName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_user);
+        createGroup = findViewById(R.id.createGroup);
+        newGroup = findViewById(R.id.newGroup);
+        groupName = findViewById(R.id.groupName);
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -95,6 +105,19 @@ public class HomeUserActivity extends AppCompatActivity {
         };
 
         recyclerView.setAdapter(adapter);
+        createGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                groupName.setVisibility(View.VISIBLE);
+                newGroup.setVisibility(View.VISIBLE);
+                createGroup.setVisibility(View.GONE);
+                showCheckboxes();
+            }
+
+            private void showCheckboxes() {
+                //
+            }
+        });
     }
 
     @Override
@@ -111,6 +134,7 @@ public class HomeUserActivity extends AppCompatActivity {
 
     // ViewHolder for user item
     public static class UserViewHolder extends RecyclerView.ViewHolder {
+        CheckBox checkBox;
         ImageView userPhoto;
         TextView userName;
 

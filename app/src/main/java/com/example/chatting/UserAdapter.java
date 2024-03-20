@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,7 +37,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_user, parent, false);
-        return new UserViewHolder(view);
+        return new UserViewHolder(view, users, listener); // Pass users and listener to ViewHolder
     }
 
     @Override
@@ -45,20 +46,23 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.bind(user);
     }
 
-
     @Override
     public int getItemCount() {
         return users.size();
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-        TextView userName;
         ImageView userPhoto;
+        TextView userName;
+        CheckBox checkbox;
 
-        public UserViewHolder(@NonNull View itemView) {
+        // Add constructor to receive users and listener
+        public UserViewHolder(@NonNull View itemView, List<userModel> users, OnUserClickListener listener) {
             super(itemView);
             userName = itemView.findViewById(R.id.displayNameTextView);
             userPhoto = itemView.findViewById(R.id.profileImageView);
+            checkbox = itemView.findViewById(R.id.checkbox);
+            checkbox.setVisibility(View.GONE);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
