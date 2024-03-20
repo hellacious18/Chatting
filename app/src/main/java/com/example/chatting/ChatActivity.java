@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
@@ -103,20 +105,13 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 MessageModel message = snapshot.getValue(MessageModel.class);
                 if (message != null) {
-                    // Check if the message was sent by the current user
-                    if (!message.getSenderId().equals(currentUserId)) {
-                        // Add the message to the list only if it was sent by the other user
-                        messageList.add(message);
-                        chatAdapter.notifyDataSetChanged();
-                        recyclerView.scrollToPosition(messageList.size() - 1);
-                    }
+                    // Add the message to the list
+                    messageList.add(message);
+                    // Notify adapter of new message
+                    chatAdapter.notifyDataSetChanged();
+                    // Scroll to the last message
+                    recyclerView.smoothScrollToPosition(messageList.size() - 1);
                 }
-//                MessageModel message = snapshot.getValue(MessageModel.class);
-//                if (message != null) {
-//                    messageList.add(message);
-//                    chatAdapter.notifyDataSetChanged();
-//                    recyclerView.scrollToPosition(messageList.size() - 1);
-//                }
             }
 
             @Override
@@ -147,7 +142,9 @@ public class ChatActivity extends AppCompatActivity {
         if (!messageContent.isEmpty()) {
             String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             long timestamp = System.currentTimeMillis();
-            MessageModel newMessage = new MessageModel(senderId, receiverId, messageContent, timestamp);
+            String messageId = chatRoomRef.push().getKey();
+
+            MessageModel newMessage = new MessageModel(senderId, receiverId, messageContent, timestamp,messageId );
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 
@@ -165,5 +162,15 @@ public class ChatActivity extends AppCompatActivity {
         ids.add(userID2);
         ids.sort(String::compareTo);
         return String.join("_", ids);
+    }
+
+    // Method to sort the message list by timestamp
+    private void sortMessageListByTimestamp() {
+        Collections.sort(messageList, new Comparator<MessageModel>() {
+            @Override
+            public int compare(MessageModel o1, MessageModel o2) {
+                return Long.compare(o1.getTimestamp(), o2.getTimestamp());
+            }
+        });
     }
 }

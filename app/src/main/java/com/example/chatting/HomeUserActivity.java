@@ -79,7 +79,7 @@ public class HomeUserActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    // Hide the item if it's the current user
+                    // If it's the current user, hide the item
                     holder.itemView.setVisibility(View.GONE);
                     holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
                 }

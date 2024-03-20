@@ -8,27 +8,36 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
-    private List<Message> messageList;
+    private List<MessageModel> messageList;
+    private String currentUserID;
 
-    public MessageAdapter(List<Message> messageList) {
+    public MessageAdapter(List<MessageModel> messageList, String currentUserID) {
         this.messageList = messageList;
+        this.currentUserID = currentUserID;
     }
 
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        View view;
+        if (viewType == MessageType.SENT.ordinal()) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        }
         return new MessageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        Message message = messageList.get(position);
-
+        MessageModel message = messageList.get(position);
         holder.bind(message);
     }
 
@@ -37,18 +46,36 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return messageList.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        MessageModel message = messageList.get(position);
+        return message.getSenderId().equals(currentUserID) ? MessageType.SENT.ordinal() : MessageType.RECEIVED.ordinal();
+    }
+
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        TextView timeStampTextView;
 
         MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
+            timeStampTextView = itemView.findViewById(R.id.timeStamp);
         }
 
-        void bind(Message message) {
-            messageTextView.setText(message.getMessage());
-            messageTextView.setVisibility(View.VISIBLE); // Ensure the TextView is visible
-
+        void bind(MessageModel message) {
+            messageTextView.setText(message.getContent());
+            timeStampTextView.setText(getFormattedTime(message.getTimestamp()));
+            timeStampTextView.setVisibility(View.VISIBLE);
         }
+
+        private String getFormattedTime(long timestamp) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM 'at' HH:mm", Locale.getDefault());
+            return sdf.format(new Date(timestamp));
+        }
+    }
+
+    enum MessageType {
+        SENT,
+        RECEIVED
     }
 }
