@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.inappmessaging.model.Button;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class HomeUserActivity extends AppCompatActivity {
     private String currentUserID;
     FloatingActionButton createGroup, newGroup;
     EditText groupName;
-    List<userModel> selectedUsers; // Declare the list
+    static List<userModel> selectedUsers; // Declare the list
 
 
     @Override
@@ -68,6 +69,8 @@ public class HomeUserActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        selectedUsers = new ArrayList<>();
+
         FirebaseRecyclerOptions<userModel> options =
                 new FirebaseRecyclerOptions.Builder<userModel>()
                         .setQuery(mDatabase, userModel.class)
@@ -80,6 +83,7 @@ public class HomeUserActivity extends AppCompatActivity {
                 if (!model.getUserId().equals(currentUserID)) {
                     holder.setUserName(model.getDisplayName());
                     holder.setUserPhoto(model.getPhotoUrl());
+                    holder.bind(model); // Bind userModel object to the checkbox
 
                     // Set click listener for each user item
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -118,39 +122,7 @@ public class HomeUserActivity extends AppCompatActivity {
                 groupName.setVisibility(View.VISIBLE);
                 newGroup.setVisibility(View.VISIBLE);
                 createGroup.setVisibility(View.GONE);
-                showCheckboxes();
-            }
-
-            private void showCheckboxes() {
-                selectedUsers = new ArrayList<>(); // Initialize the list
-
-                for (int i = 0; i < recyclerView.getChildCount(); i++) {
-                    // Get the ViewHolder for the current item
-                    RecyclerView.ViewHolder viewHolder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i));
-
-                    // Check if the ViewHolder is an instance of UserViewHolder
-                    if (viewHolder instanceof UserAdapter.UserViewHolder) {
-                        UserAdapter.UserViewHolder userViewHolder = (UserAdapter.UserViewHolder) viewHolder;
-                        CheckBox checkbox = userViewHolder.checkbox;
-                        checkbox.setVisibility(View.VISIBLE);
-
-                        // Set click listener for checkbox
-                        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                // Get the userModel associated with this checkbox
-                                userModel selectedUser = (userModel) checkbox.getTag();
-                                if (isChecked) {
-                                    // Add the selected user to the list
-                                    selectedUsers.add(selectedUser);
-                                } else {
-                                    // Remove the user if unchecked
-                                    selectedUsers.remove(selectedUser);
-                                }
-                            }
-                        });
-                    }
-                }
+                //showCheckboxes();
             }
         });
 
@@ -163,12 +135,40 @@ public class HomeUserActivity extends AppCompatActivity {
 //                    Toast.makeText(HomeUserActivity.this, "No users selected", Toast.LENGTH_SHORT).show();
 //                    return;
 //                }
+//                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+//                    RecyclerView.ViewHolder viewHolder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i));
+//                    if (viewHolder instanceof UserAdapter.UserViewHolder) {
+//                        UserAdapter.UserViewHolder userViewHolder = (UserAdapter.UserViewHolder) viewHolder;
+//                        CheckBox checkbox = userViewHolder.checkbox;
+//                        checkbox.setVisibility(View.VISIBLE);
+//                        checkbox.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
+//                            @Override
+//                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                                userModel selectedUser = (userModel) checkbox.getTag();
+//                                if (isChecked) {
+//                                    selectedUsers.add(selectedUser);
+//                                } else {
+//                                    selectedUsers.remove(selectedUser);
+//                                }
+//                            }
+//                        });
+//                    }
+//                }
 
                 // Create an intent to start ChatActivity
                 Intent intent = new Intent(HomeUserActivity.this, ChatActivity.class);
 
                 // Pass the selected users list as an extra
                 intent.putExtra("selectedUsers", (Serializable) selectedUsers);
+
+                if (selectedUsers != null && !selectedUsers.isEmpty()) {
+                    Log.d("HomeActivity", "Selected Users:");
+                    for (userModel user : selectedUsers) {
+                        Log.d("HomeActivity", "User ID: " + user.getUserId() + ", User Name: " + user.getDisplayName());
+                    }
+                } else {
+                    Log.d("HomeActivity", "No selected users");
+                }
 
                 // Add any other extras you need for ChatActivity
                 intent.putExtra("groupName", groupName.getText().toString());
@@ -214,6 +214,21 @@ public class HomeUserActivity extends AppCompatActivity {
                     .load(photoUrl)
                     .apply(requestOptions)
                     .into(userPhoto);
+        }
+        public void bind(userModel user) {
+            // Set the userModel object as the tag for the checkbox
+            checkbox.setTag(user);
+            checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    userModel selectedUser = (userModel) checkbox.getTag();
+                    if (isChecked) {
+                        selectedUsers.add(selectedUser);
+                    } else {
+                        selectedUsers.remove(selectedUser);
+                    }
+                }
+            });
         }
     }
 }

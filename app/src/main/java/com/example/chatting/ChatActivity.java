@@ -60,7 +60,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // Get group information for group chat
         groupName = getIntent().getStringExtra("groupName");
-        ArrayList<userModel> selectedUsers = (ArrayList<userModel>) getIntent().getSerializableExtra("selectedUsers");
+        List<userModel> selectedUsers = (List<userModel>) getIntent().getSerializableExtra("selectedUsers");
 
         if (selectedUsers != null && !selectedUsers.isEmpty()) {
             Log.d("ChatActivity", "Selected Users:");

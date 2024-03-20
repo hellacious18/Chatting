@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
@@ -21,12 +23,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     private Context context;
     private List<userModel> users;
     private OnUserClickListener listener;
+    private List<userModel> selectedUsers; // Add selected users list
 
-    // Constructor
     public UserAdapter(Context context, List<userModel> users, OnUserClickListener listener) {
         this.context = context;
         this.users = users;
         this.listener = listener;
+        this.selectedUsers = new ArrayList<>(); // Initialize selected users list
     }
 
     // Interface for click events
@@ -45,6 +48,23 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         userModel user = users.get(position);
         holder.bind(user);
+
+        // Set the initial state of the checkbox
+        holder.checkbox.setChecked(selectedUsers.contains(user));
+
+        // Set click listener for checkbox
+        holder.checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // If checkbox is checked, add the user to selected users list
+                    selectedUsers.add(user);
+                } else {
+                    // If checkbox is unchecked, remove the user from selected users list
+                    selectedUsers.remove(user);
+                }
+            }
+        });
     }
 
     @Override
@@ -56,15 +76,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView userPhoto;
         TextView userName;
-        CheckBox checkbox;
+        CheckBox checkbox; // Add checkbox
 
-        // Constructor
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             userName = itemView.findViewById(R.id.displayNameTextView);
             userPhoto = itemView.findViewById(R.id.profileImageView);
-            checkbox = itemView.findViewById(R.id.checkbox);
-            checkbox.setVisibility(View.GONE);
+            checkbox = itemView.findViewById(R.id.checkbox); // Initialize checkbox
 
             // Set click listener for the itemView
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +97,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             });
         }
 
-        // Bind user data to views
         public void bind(userModel user) {
             if (user != null) {
                 userName.setText(user.getDisplayName());
