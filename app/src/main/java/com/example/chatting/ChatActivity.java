@@ -3,6 +3,7 @@ package com.example.chatting;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -55,6 +56,22 @@ public class ChatActivity extends AppCompatActivity {
         // Get receiver's name and photo from Intent extras
         receiverName = getIntent().getStringExtra("username");
         receiverPhotoUrl = getIntent().getStringExtra("userPhotoUrl");
+
+        String groupName = getIntent().getStringExtra("groupName");
+        ArrayList<userModel> selectedUsers = (ArrayList<userModel>) getIntent().getSerializableExtra("selectedUsers");
+
+        Log.d("ChatActivity", "Group Name: " + groupName);
+
+        // Log selected users
+        if (selectedUsers != null && !selectedUsers.isEmpty()) {
+            Log.d("ChatActivity", "Selected Users:");
+            for (userModel user : selectedUsers) {
+                Log.d("ChatActivity", "User ID: " + user.getUserId() + ", User Name: " + user.getDisplayName());
+            }
+        } else {
+            Log.d("ChatActivity", "No selected users");
+        }
+
         backImageView = findViewById(R.id.backImageView);
         backImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,11 +179,17 @@ public class ChatActivity extends AppCompatActivity {
 
     // Method to generate chat room ID based on user IDs
     private String generateChatRoomID(List<String> userIds) {
-        // Sort the user IDs to ensure consistency
-        Collections.sort(userIds);
+        // Convert the collection to ArrayList to support removal operations
+        ArrayList<String> userIdsList = new ArrayList<>(userIds);
 
-        // Concatenate the sorted user IDs with an underscore separator
-        return TextUtils.join("_", userIds);
+        // Remove null elements from the list before sorting
+        userIdsList.removeIf(userId -> userId == null);
+
+        // Sort the list after removing null elements
+        Collections.sort(userIdsList);
+
+        // Concatenate user IDs to generate the chat room ID
+        return TextUtils.join("_", userIdsList);
     }
 
 
@@ -180,3 +203,4 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 }
+

@@ -29,6 +29,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.listener = listener;
     }
 
+    // Interface for click events
     public interface OnUserClickListener {
         void onUserClick(userModel user);
     }
@@ -37,7 +38,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_user, parent, false);
-        return new UserViewHolder(view, users, listener); // Pass users and listener to ViewHolder
+        return new UserViewHolder(view);
     }
 
     @Override
@@ -51,19 +52,21 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return users.size();
     }
 
+    // ViewHolder class
     public class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView userPhoto;
         TextView userName;
         CheckBox checkbox;
 
-        // Add constructor to receive users and listener
-        public UserViewHolder(@NonNull View itemView, List<userModel> users, OnUserClickListener listener) {
+        // Constructor
+        public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             userName = itemView.findViewById(R.id.displayNameTextView);
             userPhoto = itemView.findViewById(R.id.profileImageView);
             checkbox = itemView.findViewById(R.id.checkbox);
             checkbox.setVisibility(View.GONE);
 
+            // Set click listener for the itemView
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -76,6 +79,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             });
         }
 
+        // Bind user data to views
         public void bind(userModel user) {
             if (user != null) {
                 userName.setText(user.getDisplayName());
