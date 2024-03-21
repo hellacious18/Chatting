@@ -1,6 +1,7 @@
 package com.example.chatting;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,24 +45,23 @@ public class GroupChatsAdapter extends RecyclerView.Adapter<GroupChatsAdapter.Gr
         public GroupChatViewHolder(@NonNull View itemView) {
             super(itemView);
             groupNameTextView = itemView.findViewById(R.id.groupNameTextView);
+
         }
 
         public void bind(GroupChatModel groupChat) {
             groupNameTextView.setText(groupChat.getGroupName());
 
-//            groupNameTextView.setText(groupChat.getGroupName());
-//
-//            // Set click listener to open chat activity with group chat data
-//            itemView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Intent intent = new Intent(context, ChatActivity.class);
-//                    intent.putExtra("groupId", groupChat.getRoomId());
-//                    intent.putExtra("groupName", groupChat.getGroupName());
-//                    // Add more data if needed
-//                    context.startActivity(intent);
-//                }
-//            });
+            // Set click listener to open chat activity with group chat data
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ChatActivity.class);
+                    intent.putExtra("groupId", groupChat.getRoomId());
+                    intent.putExtra("groupName", groupChat.getGroupName());
+                    // Add more data if needed
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }

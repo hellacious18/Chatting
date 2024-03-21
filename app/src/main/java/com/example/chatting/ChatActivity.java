@@ -1,6 +1,7 @@
 package com.example.chatting;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -47,6 +48,8 @@ public class ChatActivity extends AppCompatActivity {
     TextView receiverNameTextView;
     ImageView receiverPhotoImageView;
     ImageView backImageView;
+    private String senderName;
+    private static final int REQUEST_SELECT_GROUP_ICON = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,7 @@ public class ChatActivity extends AppCompatActivity {
         receiverId = getIntent().getStringExtra("userId");
         receiverName = getIntent().getStringExtra("username");
         receiverPhotoUrl = getIntent().getStringExtra("userPhotoUrl");
+
 
         // Get group information for group chat
         groupName = getIntent().getStringExtra("groupName");
@@ -156,6 +160,33 @@ public class ChatActivity extends AppCompatActivity {
                 // Handle cancelled event if needed
             }
         });
+        receiverPhotoImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGallery();
+            }
+
+            private void openGallery() {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, REQUEST_SELECT_GROUP_ICON);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SELECT_GROUP_ICON && resultCode == RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                Uri selectedImageUri = data.getData();
+                // Update the group icon in the UI
+                Glide.with(this)
+                        .load(selectedImageUri)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(receiverPhotoImageView);
+            }
+        }
     }
 
     // Method to send a message
@@ -166,7 +197,7 @@ public class ChatActivity extends AppCompatActivity {
             long timestamp = System.currentTimeMillis();
             String messageId = chatRoomRef.push().getKey();
 
-            MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId);
+            MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId,senderName);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 

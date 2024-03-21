@@ -6,19 +6,39 @@ import java.util.Objects;
 public class MessageModel implements Serializable {
     private String senderId;
     private String content;
+    private String senderName;
     private String messageId;
     private long timestamp;
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    private String messageType;
 
     public MessageModel() {
         // Default constructor required for calls to DataSnapshot.getValue(MessageModel.class)
     }
 
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
+    }
+
     // Constructor
-    public MessageModel(String senderId, String content, long timestamp, String messageId) {
+    public MessageModel(String senderId, String content, long timestamp, String messageId, String senderName) {
         this.senderId = senderId;
         this.content = content;
         this.timestamp = timestamp;
         this.messageId = messageId;
+        this.senderName = senderName;
     }
 
     public String getSenderId() {
@@ -60,7 +80,9 @@ public class MessageModel implements Serializable {
                 "senderId='" + senderId + '\'' +
                 ", content='" + content + '\'' +
                 ", messageId='" + messageId + '\'' +
+                ", messageType='" + messageType + '\'' +
                 ", timestamp=" + timestamp +
+                ", senderName=" + senderName +
                 '}';
     }
 

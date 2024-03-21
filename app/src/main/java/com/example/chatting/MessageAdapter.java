@@ -55,16 +55,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
         TextView timeStampTextView;
+        TextView senderName;
 
         MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
             timeStampTextView = itemView.findViewById(R.id.timeStamp);
+            senderName = itemView.findViewById(R.id.senderNameTV);
         }
 
         void bind(MessageModel message) {
             messageTextView.setText(message.getContent());
             timeStampTextView.setText(getFormattedTime(message.getTimestamp()));
+            senderName.setText("@"+message.getSenderName());
             timeStampTextView.setVisibility(View.VISIBLE);
         }
 
