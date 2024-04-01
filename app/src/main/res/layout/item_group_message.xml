@@ -18,7 +18,7 @@
         android:id="@+id/groupMessageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/senderNameTV"
+        android:layout_below="@+id/senderNameTextView"
         android:padding="8dp"
         android:text="text"
         android:textStyle="bold"

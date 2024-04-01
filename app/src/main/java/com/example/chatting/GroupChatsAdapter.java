@@ -39,33 +39,11 @@ public class GroupChatsAdapter extends RecyclerView.Adapter<GroupChatsAdapter.Gr
     @Override
     public void onBindViewHolder(@NonNull GroupChatViewHolder holder, int position) {
         GroupChatModel groupChatModel = groupChatList.get(position);
-        holder.groupMessageTextView.setText(groupChatModel.getContent());
-        holder.timeStamp.setText(formatTimeStamp(groupChatModel.getTimestamp()));
-        holder.senderNameTextView.setText(groupChatModel.getSenderName());
 
-        boolean isSentByCurrentUser = groupChatModel.getSenderId().equals(senderId);
-
-        RelativeLayout.LayoutParams messageLayoutParams = (RelativeLayout.LayoutParams) holder.groupMessageTextView.getLayoutParams();
-        RelativeLayout.LayoutParams timeStampLayoutParams = (RelativeLayout.LayoutParams) holder.timeStamp.getLayoutParams();
-        RelativeLayout.LayoutParams senderLayoutParams = (RelativeLayout.LayoutParams) holder.senderNameTextView.getLayoutParams();
+        holder.bind( groupChatModel);
 
 
-        if (isSentByCurrentUser) {
-            messageLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-            messageLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, 0);
-            timeStampLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-            timeStampLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, 0);
-            holder.groupMessageTextView.setBackgroundResource(R.drawable.sent_message_background);
-        } else {
-            messageLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_START);
-            messageLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
-            timeStampLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_START);
-            timeStampLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
-            holder.groupMessageTextView.setBackgroundResource(R.drawable.received_message_background);
-        }
-        holder.senderNameTextView.setLayoutParams(senderLayoutParams);
-        holder.groupMessageTextView.setLayoutParams(messageLayoutParams);
-        holder.timeStamp.setLayoutParams(timeStampLayoutParams);
+
     }
 
     private String formatTimeStamp(long timestamp) {
@@ -81,16 +59,11 @@ public class GroupChatsAdapter extends RecyclerView.Adapter<GroupChatsAdapter.Gr
 
     public class GroupChatViewHolder extends RecyclerView.ViewHolder {
         TextView groupNameTextView;
-        TextView groupMessageTextView;
-        TextView timeStamp;
-        TextView senderNameTextView;
-
 
         public GroupChatViewHolder(@NonNull View itemView) {
             super(itemView);
             groupNameTextView = itemView.findViewById(R.id.groupNameTextView);
-            groupMessageTextView = itemView.findViewById(R.id.groupMessageTextView);
-            timeStamp = itemView.findViewById(R.id.timeStamp);
+
         }
 
         public void bind(GroupChatModel groupChat) {

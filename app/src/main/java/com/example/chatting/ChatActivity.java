@@ -45,7 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageEditText;
     private Button sendButton;
-    private ChatAdapter chatAdapter;
+    private MessageAdapter chatAdapter;
     private List<MessageModel> messageList;
     private String receiverId;
     private String receiverName;
@@ -107,7 +107,7 @@ public class ChatActivity extends AppCompatActivity {
         // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageList = new ArrayList<>();
-        chatAdapter = new ChatAdapter(this, messageList, currentUserId);
+        chatAdapter = new MessageAdapter( messageList, currentUserId);
         recyclerView.setAdapter(chatAdapter);
 
         // Set up send button click listener
@@ -297,9 +297,9 @@ public class ChatActivity extends AppCompatActivity {
         // Update groupChats node
         Map<String, Object> chatData = new HashMap<>();
         chatData.put("groupName", groupName);
-        Map<String, Boolean> members = new HashMap<>();
+        Map<String, Object> members = new HashMap<>();
         for (String userName : userNames) {
-            members.put(userName, true);
+            members.put("memberName", userName);
         }
         chatData.put("members", members);
         // Set chatId as groupName

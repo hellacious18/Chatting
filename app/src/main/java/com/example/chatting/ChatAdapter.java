@@ -37,11 +37,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        MessageModel message = messageList.get(position);
-        holder.messageText.setText(message.getContent());
-        holder.timeStamp.setText(formatTimeStamp(message.getTimestamp()));
+//        MessageModel message = messageList.get(position);
+        holder.messageText.setText(messageList.get(position).getContent());
+        holder.timeStamp.setText(formatTimeStamp(messageList.get(position).getTimestamp()));
 
-        boolean isSentByCurrentUser = message.getSenderId().equals(senderId);
+        boolean isSentByCurrentUser = messageList.get(position).getSenderId().equals(senderId);
 
         RelativeLayout.LayoutParams messageLayoutParams = (RelativeLayout.LayoutParams) holder.messageText.getLayoutParams();
         RelativeLayout.LayoutParams timeStampLayoutParams = (RelativeLayout.LayoutParams) holder.timeStamp.getLayoutParams();
