@@ -20,10 +20,10 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private Context context;
-    private List<userModel> users;
-    private OnUserClickListener listener;
-    private List<userModel> selectedUsers; // Add selected users list
+    private final Context context;
+    private final List<userModel> users;
+    private final OnUserClickListener listener;
+    private final List<userModel> selectedUsers; // Add selected users list
 
     public UserAdapter(Context context, List<userModel> users, OnUserClickListener listener) {
         this.context = context;
