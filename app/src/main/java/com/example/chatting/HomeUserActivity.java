@@ -32,7 +32,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HomeUserActivity extends AppCompatActivity {
 
@@ -139,8 +141,13 @@ public class HomeUserActivity extends AppCompatActivity {
                 community.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
                 recyclerViewGroup.setVisibility(View.GONE);
-
                 header.setText("S E L E C T   C O N T A C T S");
+
+                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                    View itemView = recyclerView.getChildAt(i);
+                    UserViewHolder viewHolder = (UserViewHolder) recyclerView.getChildViewHolder(itemView);
+                    viewHolder.checkbox.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -177,6 +184,12 @@ public class HomeUserActivity extends AppCompatActivity {
                 recyclerView.setVisibility(View.GONE);
                 recyclerViewGroup.setVisibility(View.VISIBLE);
                 header.setText("C O M M U N I T I E S");
+
+                for (int i = 0; i < recyclerViewGroup.getChildCount(); i++) {
+                    View itemView = recyclerViewGroup.getChildAt(i);
+                    GroupChatsAdapter.GroupChatViewHolder viewHolder = (GroupChatsAdapter.GroupChatViewHolder) recyclerViewGroup.getChildViewHolder(itemView);
+                    viewHolder.getGroupNameTextView().setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -191,7 +204,7 @@ public class HomeUserActivity extends AppCompatActivity {
 
         // Initialize groupChatsList and adapter
         groupChatsList = new ArrayList<>();
-        groupChatsAdapter = new GroupChatsAdapter(this, groupChatsList);
+        groupChatsAdapter = new GroupChatsAdapter(this, groupChatsList, currentUserID, currentUser.getDisplayName());
         recyclerViewGroup.setAdapter(groupChatsAdapter);
 
         // Fetch group chat information from Firebase
@@ -202,8 +215,20 @@ public class HomeUserActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String roomId = snapshot.getKey();
                     String groupName = snapshot.child("groupName").getValue(String.class);
+                    String groupPhoto = snapshot.toString();
+
+                    List<userModel> members = new ArrayList<>();
+                    for (DataSnapshot memberSnapshot : snapshot.child("members").getChildren()) {
+                        String memberId = memberSnapshot.getKey();
+                        String memberName = memberSnapshot.child("displayName").getValue(String.class);
+                        String memberPhotoUrl = memberSnapshot.child("photoUrl").getValue(String.class);
+                        // Create userModel object for each member
+                        userModel member = new userModel(memberId, memberName, memberPhotoUrl);
+                        members.add(member);
+                    }
+
                     // Add more fields if needed (e.g., users, lastMessage, etc.)
-                    GroupChatModel groupChat = new GroupChatModel(roomId, groupName);
+                    GroupChatModel groupChat = new GroupChatModel(roomId, groupName, groupPhoto, members);
                     groupChatsList.add(groupChat);
                 }
                 groupChatsAdapter.notifyDataSetChanged();

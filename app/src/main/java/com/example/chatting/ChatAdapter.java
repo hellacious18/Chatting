@@ -17,11 +17,9 @@ import java.util.Locale;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHolder> {
 
-    private Context context;
-    private List<MessageModel> messageList;
-    private String senderId;
-    private static final int VIEW_TYPE_MESSAGE = 1;
-    private static final int VIEW_TYPE_GROUP = 2;
+    private final Context context;
+    private final List<MessageModel> messageList;
+    private final String senderId;
 
     public ChatAdapter(Context context, List<MessageModel> messageList, String senderId) {
         this.context = context;
@@ -33,11 +31,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        if (viewType == VIEW_TYPE_GROUP) {
-            view = LayoutInflater.from(context).inflate(R.layout.item_group_message, parent, false);
-        } else {
-            view = LayoutInflater.from(context).inflate(R.layout.item_message, parent, false);
-        }
+        view = LayoutInflater.from(context).inflate(R.layout.item_group_message, parent, false);
         return new MessageViewHolder(view);
     }
 
@@ -79,16 +73,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
     @Override
     public int getItemCount() {
         return messageList.size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        MessageModel message = messageList.get(position);
-        if (message.getMessageType() != null && message.getMessageType().equals("group")) {
-            return VIEW_TYPE_GROUP;
-        } else {
-            return VIEW_TYPE_MESSAGE;
-        }
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
