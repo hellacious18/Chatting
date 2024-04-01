@@ -3,8 +3,6 @@ package com.example.chatting;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,16 +24,24 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ChatActivity extends AppCompatActivity {
 
     private DatabaseReference chatRoomRef;
+    private DatabaseReference groupChatsByNameRef; // Reference to groupChatsByName node
     private RecyclerView recyclerView;
     private EditText messageEditText;
     private Button sendButton;
@@ -50,6 +56,7 @@ public class ChatActivity extends AppCompatActivity {
     ImageView backImageView;
     private String senderName;
     private static final int REQUEST_SELECT_GROUP_ICON = 2;
+    private static Set<String> generatedIds = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,27 +68,13 @@ public class ChatActivity extends AppCompatActivity {
         receiverName = getIntent().getStringExtra("username");
         receiverPhotoUrl = getIntent().getStringExtra("userPhotoUrl");
 
-
         // Get group information for group chat
         groupName = getIntent().getStringExtra("groupName");
         List<userModel> selectedUsers = (List<userModel>) getIntent().getSerializableExtra("selectedUsers");
 
-        if (selectedUsers != null && !selectedUsers.isEmpty()) {
-            Log.d("ChatActivity", "Selected Users:");
-            for (userModel user : selectedUsers) {
-                Log.d("ChatActivity", "User ID: " + user.getUserId() + ", User Name: " + user.getDisplayName());
-            }
-        } else {
-            Log.d("ChatActivity", "No selected users");
+        if (selectedUsers == null) {
+            selectedUsers = new ArrayList<>();
         }
-
-        backImageView = findViewById(R.id.backImageView);
-        backImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), HomeUserActivity.class));
-            }
-        });
 
         // Initialize Firebase
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -99,22 +92,22 @@ public class ChatActivity extends AppCompatActivity {
             // Group chat mode
             roomId = generateChatRoomID(getUserIdsFromSelectedUsers(selectedUsers));
             chatRoomRef = databaseReference.child("chatRooms").child("groupChats").child(roomId);
+            groupChatsByNameRef = databaseReference.child("chatRooms").child("groupChatsByName"); // Initialize reference
             initializeGroupChatView();
+            createGroupChat(groupName, getUserIdsFromSelectedUsers(selectedUsers));
         }
-
-        chatRoomRef = databaseReference.child("chatRooms").child(roomId);
 
         // Initialize views
         recyclerView = findViewById(R.id.chatRecyclerView);
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
-
-        // Initialize message list and adapter
-        messageList = new ArrayList<>();
-        chatAdapter = new ChatAdapter(this, messageList, currentUserId);
+        receiverPhotoImageView = findViewById(R.id.userImageView);
+        backImageView = findViewById(R.id.backImageView);
 
         // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        messageList = new ArrayList<>();
+        chatAdapter = new ChatAdapter(this, messageList, currentUserId);
         recyclerView.setAdapter(chatAdapter);
 
         // Set up send button click listener
@@ -160,33 +153,22 @@ public class ChatActivity extends AppCompatActivity {
                 // Handle cancelled event if needed
             }
         });
+
+        // Set up back button click listener
+        backImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), HomeUserActivity.class));
+            }
+        });
+
+        // Set up receiver photo click listener for group chat
         receiverPhotoImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openGallery();
             }
-
-            private void openGallery() {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_SELECT_GROUP_ICON);
-            }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_SELECT_GROUP_ICON && resultCode == RESULT_OK) {
-            if (data != null && data.getData() != null) {
-                Uri selectedImageUri = data.getData();
-                // Update the group icon in the UI
-                Glide.with(this)
-                        .load(selectedImageUri)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(receiverPhotoImageView);
-            }
-        }
     }
 
     // Method to send a message
@@ -197,7 +179,7 @@ public class ChatActivity extends AppCompatActivity {
             long timestamp = System.currentTimeMillis();
             String messageId = chatRoomRef.push().getKey();
 
-            MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId,senderName);
+            MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId, senderName);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 
@@ -207,13 +189,49 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-
     // Method to generate chat room ID based on user IDs
     private String generateChatRoomID(List<String> userIds) {
-        // Sort the user IDs to ensure consistent room ID generation
-        Collections.sort(userIds);
-        // Concatenate user IDs to generate the chat room ID
-        return TextUtils.join("_", userIds);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        // Sort the user IDs to ensure consistency
+        userIds.sort(String::compareTo);
+
+        // Concatenate all user IDs
+        for (String userId : userIds) {
+            stringBuilder.append(userId);
+        }
+
+        // Generate MD5 hash of concatenated user IDs
+        String concatenatedIds = stringBuilder.toString();
+        String chatRoomID = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hashBytes = md.digest(concatenatedIds.getBytes());
+
+            // Convert byte array to hexadecimal format
+            StringBuilder hexString = new StringBuilder();
+            for (byte hashByte : hashBytes) {
+                String hex = Integer.toHexString(0xff & hashByte);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            chatRoomID = hexString.toString();
+
+            // Ensure uniqueness and fixed size
+            chatRoomID = chatRoomID.substring(0, Math.min(chatRoomID.length(), 8)); // Adjust size as needed
+
+            // Check if chat room ID already exists
+            if (generatedIds.contains(chatRoomID)) {
+                // If it does, generate a new one
+                return generateChatRoomID(userIds);
+            } else {
+                // If it doesn't, add it to the set of generated IDs
+                generatedIds.add(chatRoomID);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return chatRoomID;
     }
 
     // Method to get user IDs from selected users in a group chat
@@ -262,5 +280,69 @@ public class ChatActivity extends AppCompatActivity {
                 return Long.compare(o1.getTimestamp(), o2.getTimestamp());
             }
         });
+    }
+
+    // Method to open gallery for selecting group icon
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_SELECT_GROUP_ICON);
+    }
+
+    // Method to create a group chat and store it in Firebase
+    // Method to create a group chat and store it in Firebase
+    private void createGroupChat(String groupName, List<String> userNames) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        // Update groupChats node
+        Map<String, Object> chatData = new HashMap<>();
+        chatData.put("groupName", groupName);
+        Map<String, Boolean> members = new HashMap<>();
+        for (String userName : userNames) {
+            members.put(userName, true);
+        }
+        chatData.put("members", members);
+        // Set chatId as groupName
+        databaseReference.child("chatRooms").child("groupChats").child(groupName).setValue(chatData);
+
+        // Update groupChatsByName node
+        groupChatsByNameRef.child(groupName).setValue(groupName);
+    }
+
+
+    // Method to retrieve chatId by groupName
+    private void getChatIdByGroupName(String groupName) {
+        groupChatsByNameRef.child(groupName)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            String chatId = dataSnapshot.getValue(String.class);
+                            // Do something with the chatId
+                        } else {
+                            // Group chat not found
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Handle onCancelled if needed
+                    }
+                });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SELECT_GROUP_ICON && resultCode == RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                Uri selectedImageUri = data.getData();
+                // Update the group icon in the UI
+                Glide.with(this)
+                        .load(selectedImageUri)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(receiverPhotoImageView);
+            }
+        }
     }
 }
