@@ -3,14 +3,16 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="5dp"
+    android:layout_margin="5dp"
+    android:background="@drawable/received_message_background"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/messageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
         android:text="text"
+        android:padding="2dp"
         android:textColor="@android:color/black"
         android:textSize="15dp" />
     <TextView
@@ -18,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/messageTextView"
-        android:visibility="visible"
+        android:textColor="@color/black"
         android:textSize="10dp"
         android:text="time stamp"/>
 

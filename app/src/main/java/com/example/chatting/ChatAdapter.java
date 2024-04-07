@@ -31,9 +31,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        view = LayoutInflater.from(context).inflate(R.layout.item_message, parent, false);
+        Context context = parent.getContext();
+        if (viewType == MessageAdapter.MessageType.SENT.ordinal()) {
+            view = LayoutInflater.from(context).inflate(R.layout.item_message_sent, parent, false);
+        } else {
+            view = LayoutInflater.from(context).inflate(R.layout.item_message_received, parent, false);
+        }
         return new MessageViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
@@ -97,5 +103,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
             messageText = itemView.findViewById(R.id.messageTextView);
             timeStamp = itemView.findViewById(R.id.timeStamp);
         }
+        public void setMessageContent(String content) {
+            messageText.setText(content);
+        }
     }
+
 }

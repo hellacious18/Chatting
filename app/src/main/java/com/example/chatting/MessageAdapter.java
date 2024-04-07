@@ -28,9 +28,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
         if (viewType == MessageType.SENT.ordinal()) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_sent, parent, false);
         } else {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_received, parent, false);
         }
         return new MessageViewHolder(view);
     }
@@ -65,7 +65,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         void bind(MessageModel message) {
             messageTextView.setText(message.getContent());
             timeStampTextView.setText(getFormattedTime(message.getTimestamp()));
-            timeStampTextView.setVisibility(View.VISIBLE);
         }
 
         private String getFormattedTime(long timestamp) {
