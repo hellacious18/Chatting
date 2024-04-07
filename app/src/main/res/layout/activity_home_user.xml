@@ -54,6 +54,7 @@
             android:layout_weight="1"
             android:layout_margin="10dp"
             android:visibility="gone"
+            android:backgroundTint="@color/dark_purple"
             android:src="@drawable/forward"/>
 
     </LinearLayout>
@@ -79,6 +80,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
         android:layout_gravity="right"
+
+        android:backgroundTint="@color/dark_purple"
         android:src="@drawable/community"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -87,6 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
         android:src="@drawable/add"
+        android:backgroundTint="@color/dark_purple"
         android:layout_gravity="right"
         android:visibility="gone" />
 

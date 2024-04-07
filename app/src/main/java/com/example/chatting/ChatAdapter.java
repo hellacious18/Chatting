@@ -31,17 +31,27 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        view = LayoutInflater.from(context).inflate(R.layout.item_group_message, parent, false);
+        view = LayoutInflater.from(context).inflate(R.layout.item_message, parent, false);
         return new MessageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-//        MessageModel message = messageList.get(position);
-        holder.messageText.setText(messageList.get(position).getContent());
-        holder.timeStamp.setText(formatTimeStamp(messageList.get(position).getTimestamp()));
+        MessageModel message = messageList.get(position);
 
-        boolean isSentByCurrentUser = messageList.get(position).getSenderId().equals(senderId);
+        // Check if content and timestamp have been set
+        if (!holder.isContentSet) {
+            holder.messageText.setText(message.getContent());
+            holder.isContentSet = true;
+        }
+
+        // Check if timestamp has been set
+        if (!holder.isTimeStampSet) {
+            holder.timeStamp.setText(formatTimeStamp(message.getTimestamp()));
+            holder.isTimeStampSet = true;
+        }
+
+        boolean isSentByCurrentUser = message.getSenderId().equals(senderId);
 
         RelativeLayout.LayoutParams messageLayoutParams = (RelativeLayout.LayoutParams) holder.messageText.getLayoutParams();
         RelativeLayout.LayoutParams timeStampLayoutParams = (RelativeLayout.LayoutParams) holder.timeStamp.getLayoutParams();
@@ -76,6 +86,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
+        public boolean isContentSet;
+        public boolean isTimeStampSet;
         TextView messageText;
         TextView timeStamp;
 

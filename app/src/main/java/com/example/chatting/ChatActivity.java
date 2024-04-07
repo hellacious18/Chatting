@@ -24,7 +24,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -123,12 +122,22 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 MessageModel message = snapshot.getValue(MessageModel.class);
                 if (message != null) {
-                    // Add the message to the list
-                    messageList.add(message);
-                    // Notify adapter of new message
-                    chatAdapter.notifyDataSetChanged();
-                    // Scroll to the last message
-                    recyclerView.smoothScrollToPosition(messageList.size() - 1);
+                    // Check if the message already exists in the list
+                    boolean messageExists = false;
+                    for (MessageModel existingMessage : messageList) {
+                        if (existingMessage.getMessageId().equals(message.getMessageId())) {
+                            messageExists = true;
+                            break;
+                        }
+                    }
+                    // Add the message to the list if it doesn't exist
+                    if (!messageExists) {
+                        messageList.add(message);
+                        // Notify adapter of new message
+                        chatAdapter.notifyDataSetChanged();
+                        // Scroll to the last message
+                        recyclerView.smoothScrollToPosition(messageList.size() - 1);
+                    }
                 }
             }
 
