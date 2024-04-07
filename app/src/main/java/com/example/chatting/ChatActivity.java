@@ -41,7 +41,7 @@ import java.util.Set;
 public class ChatActivity extends AppCompatActivity {
 
     private DatabaseReference chatRoomRef;
-    private DatabaseReference groupChatsByNameRef; // Reference to groupChatsByName node
+    // Reference to groupChatsByName node
     private RecyclerView recyclerView;
     private EditText messageEditText;
     private Button sendButton;
@@ -92,7 +92,6 @@ public class ChatActivity extends AppCompatActivity {
             // Group chat mode
             roomId = generateChatRoomID(getUserIdsFromSelectedUsers(selectedUsers));
             chatRoomRef = databaseReference.child("chatRooms").child("groupChats").child(roomId);
-            groupChatsByNameRef = databaseReference.child("chatRooms").child("groupChatsByName"); // Initialize reference
             initializeGroupChatView();
             createGroupChat(groupName, getUserIdsFromSelectedUsers(selectedUsers));
         }
@@ -305,31 +304,8 @@ public class ChatActivity extends AppCompatActivity {
         // Set chatId as groupName
         databaseReference.child("chatRooms").child("groupChats").child(groupName).setValue(chatData);
 
-        // Update groupChatsByName node
-        groupChatsByNameRef.child(groupName).setValue(groupName);
     }
 
-
-    // Method to retrieve chatId by groupName
-    private void getChatIdByGroupName(String groupName) {
-        groupChatsByNameRef.child(groupName)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            String chatId = dataSnapshot.getValue(String.class);
-                            // Do something with the chatId
-                        } else {
-                            // Group chat not found
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        // Handle onCancelled if needed
-                    }
-                });
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -46,8 +46,6 @@ public class GroupChatsAdapter extends RecyclerView.Adapter<GroupChatsAdapter.Gr
 
         holder.bind( groupChatModel);
 
-
-
     }
 
     private String formatTimeStamp(long timestamp) {
@@ -78,7 +76,9 @@ public class GroupChatsAdapter extends RecyclerView.Adapter<GroupChatsAdapter.Gr
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ChatActivity.class);
+                    Intent intent = new Intent(context, GroupChatActivity.class);
+                        Log.d("x", String.valueOf(groupChat.getGroupName()));
+
                     intent.putExtra("groupId", groupChat.getRoomId());
                     intent.putExtra("groupName", groupChat.getGroupName());
                     // Add more data if needed

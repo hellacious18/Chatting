@@ -158,10 +158,9 @@ public class HomeUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(HomeUserActivity.this, ChatActivity.class);
+                Intent intent = new Intent(HomeUserActivity.this, GroupChatActivity.class);
 
                 // Pass the selected users list as an extra
-                intent.putExtra("selectedUsers", (Serializable) selectedUsers);
 
                 if (selectedUsers != null && !selectedUsers.isEmpty()) {
                     DatabaseReference groupMemberRef = databaseReference.child("chatRooms").child("group").child(groupName.getText().toString()).child("members");
@@ -177,6 +176,7 @@ public class HomeUserActivity extends AppCompatActivity {
 
                 // Add any other extras you need for ChatActivity
                 intent.putExtra("groupName", groupName.getText().toString());
+                intent.putExtra("selectedUsers", (Serializable) selectedUsers);
 
                 // Start ChatActivity
                 startActivity(intent);
