@@ -48,6 +48,7 @@ public class HomeUserActivity extends AppCompatActivity {
     TextView header;
     EditText groupName;
     static List<userModel> selectedUsers; // Declare the list
+    String roomId;
 
     private DatabaseReference groupChatsRef;
     private List<GroupChatModel> groupChatsList;
@@ -69,6 +70,8 @@ public class HomeUserActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerViewGroup = findViewById(R.id.recyclerViewGroup);
 
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        groupChatsRef = databaseReference.child("chatRooms").child("group");
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -161,8 +164,11 @@ public class HomeUserActivity extends AppCompatActivity {
                 intent.putExtra("selectedUsers", (Serializable) selectedUsers);
 
                 if (selectedUsers != null && !selectedUsers.isEmpty()) {
+                    DatabaseReference groupMemberRef = databaseReference.child("chatRooms").child("group").child(groupName.getText().toString()).child("members");
+                    groupMemberRef.push().setValue(currentUser.getDisplayName());
                     Log.d("HomeActivity", "Selected Users:");
                     for (userModel user : selectedUsers) {
+                        groupMemberRef.push().setValue(user.getDisplayName());
                         Log.d("HomeActivity", "User ID: " + user.getUserId() + ", User Name: " + user.getDisplayName());
                     }
                 } else {
@@ -193,14 +199,9 @@ public class HomeUserActivity extends AppCompatActivity {
             }
         });
 
-        // Initialize Firebase
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        groupChatsRef = databaseReference.child("chatRooms").child("groupChats");
-
         // Initialize RecyclerView
         recyclerViewGroup = findViewById(R.id.recyclerViewGroup);
         recyclerViewGroup.setLayoutManager(new LinearLayoutManager(this));
-
 
         // Initialize groupChatsList and adapter
         groupChatsList = new ArrayList<>();
@@ -211,24 +212,26 @@ public class HomeUserActivity extends AppCompatActivity {
         groupChatsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userModel member;
+                List<userModel> memberList = new ArrayList<>();
                 groupChatsList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String roomId = snapshot.getKey();
-                    String groupName = snapshot.child("groupName").getValue(String.class);
+                    roomId = snapshot.getKey();
                     String groupPhoto = snapshot.toString();
+                    String groupName = snapshot.getKey();
 
-                    List<userModel> members = new ArrayList<>();
                     for (DataSnapshot memberSnapshot : snapshot.child("members").getChildren()) {
                         String memberId = memberSnapshot.getKey();
-                        String memberName = memberSnapshot.child("displayName").getValue(String.class);
+                        String memberName = (String) memberSnapshot.getValue(Boolean.parseBoolean("value"));
                         String memberPhotoUrl = memberSnapshot.child("photoUrl").getValue(String.class);
+
                         // Create userModel object for each member
-                        userModel member = new userModel(memberId, memberName, memberPhotoUrl);
-                        members.add(member);
+                        member = new userModel(memberId, memberName, memberPhotoUrl);
+                        memberList.add(member);
                     }
 
                     // Add more fields if needed (e.g., users, lastMessage, etc.)
-                    GroupChatModel groupChat = new GroupChatModel(roomId, groupName, groupPhoto, members);
+                    GroupChatModel groupChat = new GroupChatModel(roomId, groupName, groupPhoto, memberList);
                     groupChatsList.add(groupChat);
                 }
                 groupChatsAdapter.notifyDataSetChanged();
