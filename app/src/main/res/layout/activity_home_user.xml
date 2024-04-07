@@ -92,6 +92,7 @@
         android:src="@drawable/add"
         android:backgroundTint="@color/dark_purple"
         android:layout_gravity="right"
+
         android:visibility="gone" />
 
 </LinearLayout>

@@ -74,6 +74,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
         holder.timeStamp.setLayoutParams(timeStampLayoutParams);
     }
 
+
     private String formatTimeStamp(long timestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM 'at' HH:mm", Locale.getDefault());
         Date date = new Date(timestamp);

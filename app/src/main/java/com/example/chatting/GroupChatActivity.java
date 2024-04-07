@@ -26,18 +26,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class GroupChatActivity extends AppCompatActivity {
@@ -109,18 +101,28 @@ public class GroupChatActivity extends AppCompatActivity {
 
         // Set up Firebase Realtime Database listener to receive messages
         groupChatRoomRef.addChildEventListener(new ChildEventListener() {
-            @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 MessageModel message = snapshot.getValue(MessageModel.class);
                 if (message != null) {
-                    // Add the message to the list
-                    messageList.add(message);
-                    // Notify adapter of new message
-                    chatAdapter.notifyDataSetChanged();
-                    // Scroll to the last message
-                    recyclerView.smoothScrollToPosition(messageList.size() - 1);
+                    // Check if the message already exists in the list
+                    boolean messageExists = false;
+                    for (MessageModel existingMessage : messageList) {
+                        if (existingMessage.getMessageId().equals(message.getMessageId())) {
+                            messageExists = true;
+                            break;
+                        }
+                    }
+                    // Add the message to the list if it doesn't exist
+                    if (!messageExists) {
+                        messageList.add(message);
+                        // Notify adapter of new message
+                        chatAdapter.notifyDataSetChanged();
+                        // Scroll to the last message
+                        recyclerView.smoothScrollToPosition(messageList.size() - 1);
+                    }
                 }
             }
+
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
