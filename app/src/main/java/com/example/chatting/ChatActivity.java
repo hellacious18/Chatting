@@ -39,7 +39,7 @@ import java.util.Set;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private DatabaseReference chatRoomRef, databaseReference;
+    private DatabaseReference chatRoomRef, RchatRoomREf, databaseReference;
     // Reference to groupChatsByName node
     private RecyclerView recyclerView;
     private EditText messageEditText;
@@ -88,9 +88,10 @@ public class ChatActivity extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUserId = currentUser.getUid();
 
-        roomId = generateChatRoomID(Arrays.asList(currentUserId, receiverId));
-        chatRoomRef = databaseReference.child("chatRooms").child("singleUserChats").child(roomId);
-
+        chatRoomRef = databaseReference.child("chatRooms").child("singleUserChats")
+                .child(currentUser.getDisplayName()).child(receiverName);
+        RchatRoomREf = databaseReference.child("chatRooms").child("singleUserChats")
+                .child(receiverName).child(currentUser.getDisplayName());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageList = new ArrayList<>();
@@ -176,6 +177,7 @@ public class ChatActivity extends AppCompatActivity {
             String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             long timestamp = System.currentTimeMillis();
             String messageId = chatRoomRef.push().getKey();
+            String messageIdR = RchatRoomREf.push().getKey();
 
             MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId, senderName);
             messageList.add(newMessage);
@@ -183,72 +185,9 @@ public class ChatActivity extends AppCompatActivity {
 
             // Push the message object to Firebase Realtime Database
             chatRoomRef.child(messageId).setValue(newMessage);
+            RchatRoomREf.child(messageIdR).setValue(newMessage);
             messageEditText.setText("");
         }
-    }
-
-    // Method to generate chat room ID based on user IDs
-    private String generateChatRoomID(List<String> userIds) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        // Sort the user IDs to ensure consistency
-        userIds.sort(String::compareTo);
-
-        // Concatenate all user IDs
-        for (String userId : userIds) {
-            stringBuilder.append(userId);
-        }
-
-        // Generate MD5 hash of concatenated user IDs
-        String concatenatedIds = stringBuilder.toString();
-        String chatRoomID = null;
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hashBytes = md.digest(concatenatedIds.getBytes());
-
-            // Convert byte array to hexadecimal format
-            StringBuilder hexString = new StringBuilder();
-            for (byte hashByte : hashBytes) {
-                String hex = Integer.toHexString(0xff & hashByte);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            chatRoomID = hexString.toString();
-
-            // Ensure uniqueness and fixed size
-            chatRoomID = chatRoomID.substring(0, Math.min(chatRoomID.length(), 8)); // Adjust size as needed
-
-            // Check if chat room ID already exists
-            if (generatedIds.contains(chatRoomID)) {
-                // If it does, generate a new one
-                return generateChatRoomID(userIds);
-            } else {
-                // If it doesn't, add it to the set of generated IDs
-                generatedIds.add(chatRoomID);
-            }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return chatRoomID;
-    }
-
-    // Method to get user IDs from selected users in a group chat
-    private List<String> getUserIdsFromSelectedUsers(List<userModel> selectedUsers) {
-        List<String> userIds = new ArrayList<>();
-        for (userModel user : selectedUsers) {
-            userIds.add(user.getUserId());
-        }
-        return userIds;
-    }
-
-    // Method to sort the message list by timestamp
-    private void sortMessageListByTimestamp() {
-        Collections.sort(messageList, new Comparator<MessageModel>() {
-            @Override
-            public int compare(MessageModel o1, MessageModel o2) {
-                return Long.compare(o1.getTimestamp(), o2.getTimestamp());
-            }
-        });
     }
 
     // Method to open gallery for selecting group icon
