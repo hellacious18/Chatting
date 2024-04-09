@@ -40,29 +40,42 @@ import java.util.Set;
 public class ChatActivity extends AppCompatActivity {
 
     private DatabaseReference chatRoomRef, databaseReference;
+    // Reference to groupChatsByName node
     private RecyclerView recyclerView;
     private EditText messageEditText;
     private Button sendButton;
     private MessageAdapter chatAdapter;
     private List<MessageModel> messageList;
-    private String receiverId, senderName, receiverName, receiverPhotoUrl;
+    private String receiverId;
+    private String receiverName;
+    private String receiverPhotoUrl;
+    private String groupName;
     TextView receiverNameTextView;
-    ImageView receiverPhotoImageView, backImageView;
+    ImageView receiverPhotoImageView;
+    ImageView backImageView;
+    private String senderName;
     private static final int REQUEST_SELECT_GROUP_ICON = 2;
+    private static Set<String> generatedIds = new HashSet<>();
+    String roomId, currentUserId;
     FirebaseUser currentUser;
-    String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        // Get receiver's information for single chat
         receiverId = getIntent().getStringExtra("userId");
         receiverName = getIntent().getStringExtra("username");
         receiverPhotoUrl = getIntent().getStringExtra("userPhotoUrl");
 
-        receiverNameTextView = findViewById(R.id.userNameTextView);
+        recyclerView = findViewById(R.id.chatRecyclerView);
+        messageEditText = findViewById(R.id.messageEditText);
+        sendButton = findViewById(R.id.sendButton);
         receiverPhotoImageView = findViewById(R.id.userImageView);
+        backImageView = findViewById(R.id.backImageView);
+
+        receiverNameTextView = findViewById(R.id.userNameTextView);
         receiverNameTextView.setText(receiverName);
         RequestOptions requestOptions = new RequestOptions().circleCrop();
         Glide.with(receiverPhotoImageView)
@@ -75,19 +88,16 @@ public class ChatActivity extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUserId = currentUser.getUid();
 
-        chatRoomRef = databaseReference.child("chatRooms").child("singleUserChats").child(receiverName);
+        roomId = generateChatRoomID(Arrays.asList(currentUserId, receiverId));
+        chatRoomRef = databaseReference.child("chatRooms").child("singleUserChats").child(roomId);
 
-        recyclerView = findViewById(R.id.chatRecyclerView);
-        messageEditText = findViewById(R.id.messageEditText);
-        sendButton = findViewById(R.id.sendButton);
-        receiverPhotoImageView = findViewById(R.id.userImageView);
-        backImageView = findViewById(R.id.backImageView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageList = new ArrayList<>();
         chatAdapter = new MessageAdapter( messageList, currentUserId);
         recyclerView.setAdapter(chatAdapter);
 
+        // Set up send button click listener
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,6 +105,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        // Set up Firebase Realtime Database listener to receive messages
         chatRoomRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -140,6 +151,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        // Set up back button click listener
         backImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,6 +159,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        // Set up receiver photo click listener for group chat
         receiverPhotoImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -173,7 +186,71 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+    // Method to generate chat room ID based on user IDs
+    private String generateChatRoomID(List<String> userIds) {
+        StringBuilder stringBuilder = new StringBuilder();
 
+        // Sort the user IDs to ensure consistency
+        userIds.sort(String::compareTo);
+
+        // Concatenate all user IDs
+        for (String userId : userIds) {
+            stringBuilder.append(userId);
+        }
+
+        // Generate MD5 hash of concatenated user IDs
+        String concatenatedIds = stringBuilder.toString();
+        String chatRoomID = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hashBytes = md.digest(concatenatedIds.getBytes());
+
+            // Convert byte array to hexadecimal format
+            StringBuilder hexString = new StringBuilder();
+            for (byte hashByte : hashBytes) {
+                String hex = Integer.toHexString(0xff & hashByte);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            chatRoomID = hexString.toString();
+
+            // Ensure uniqueness and fixed size
+            chatRoomID = chatRoomID.substring(0, Math.min(chatRoomID.length(), 8)); // Adjust size as needed
+
+            // Check if chat room ID already exists
+            if (generatedIds.contains(chatRoomID)) {
+                // If it does, generate a new one
+                return generateChatRoomID(userIds);
+            } else {
+                // If it doesn't, add it to the set of generated IDs
+                generatedIds.add(chatRoomID);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return chatRoomID;
+    }
+
+    // Method to get user IDs from selected users in a group chat
+    private List<String> getUserIdsFromSelectedUsers(List<userModel> selectedUsers) {
+        List<String> userIds = new ArrayList<>();
+        for (userModel user : selectedUsers) {
+            userIds.add(user.getUserId());
+        }
+        return userIds;
+    }
+
+    // Method to sort the message list by timestamp
+    private void sortMessageListByTimestamp() {
+        Collections.sort(messageList, new Comparator<MessageModel>() {
+            @Override
+            public int compare(MessageModel o1, MessageModel o2) {
+                return Long.compare(o1.getTimestamp(), o2.getTimestamp());
+            }
+        });
+    }
+
+    // Method to open gallery for selecting group icon
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
