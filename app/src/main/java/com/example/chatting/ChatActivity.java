@@ -169,6 +169,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     // Method to send a message
+    ///hbiygiyg
     private void sendMessage() {
         String messageContent = messageEditText.getText().toString().trim();
         if (!messageContent.isEmpty()) {
