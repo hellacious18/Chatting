@@ -32,9 +32,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class HomeUserActivity extends AppCompatActivity {
 
@@ -88,12 +88,13 @@ public class HomeUserActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewGroup.setLayoutManager(new LinearLayoutManager(this));
 
-        selectedUsers = new ArrayList<>();
-
         FirebaseRecyclerOptions<userModel> options =
                 new FirebaseRecyclerOptions.Builder<userModel>()
-                        .setQuery(mDatabase, userModel.class)
+                        .setQuery(mDatabase.orderByChild("displayName"), userModel.class)
                         .build();
+
+
+        selectedUsers = new ArrayList<>();
 
         adapter = new FirebaseRecyclerAdapter<userModel, UserViewHolder>(options) {
             @Override
@@ -234,6 +235,13 @@ public class HomeUserActivity extends AppCompatActivity {
                     GroupChatModel groupChat = new GroupChatModel(roomId, groupName, groupPhoto, memberList);
                     groupChatsList.add(groupChat);
                 }
+                // Sort groupChatsList by group name
+                Collections.sort(groupChatsList, new Comparator<GroupChatModel>() {
+                    @Override
+                    public int compare(GroupChatModel chat1, GroupChatModel chat2) {
+                        return chat1.getGroupName().compareToIgnoreCase(chat2.getGroupName());
+                    }
+                });
                 groupChatsAdapter.notifyDataSetChanged();
             }
 
