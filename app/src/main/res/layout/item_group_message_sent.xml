@@ -8,21 +8,35 @@
     android:layout_gravity="end"
     android:layout_marginRight="0dp"
     android:layout_alignParentRight="true"
-    android:background="@drawable/sent_message_background"
     android:padding="5dp">
 
     <TextView
-        android:id="@+id/messageTextView"
+        android:id="@+id/receiver"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:text="sender"
+        android:textColor="@android:color/black"
+        android:textSize="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/receiver"
+        android:background="@drawable/sent_message_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/messageTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp"
         android:text="text"
         android:textColor="@android:color/black"
-        android:textSize="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/timeStamp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        android:textSize="15dp" />
 
     <TextView
         android:id="@+id/timeStamp"
@@ -31,11 +45,9 @@
         android:layout_below="@id/messageTextView"
         android:text="time stamp"
         android:textColor="@color/black"
-        android:textSize="10dp"
+        android:textSize="10dp" />
 
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/messageTextView" />
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

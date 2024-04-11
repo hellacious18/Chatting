@@ -35,23 +35,18 @@ import java.util.Set;
 public class GroupChatActivity extends AppCompatActivity {
 
     private DatabaseReference groupChatRoomRef;
-    private DatabaseReference groupChatsByNameRef; // Reference to groupChatsByName node
     private RecyclerView recyclerView;
     private EditText messageEditText;
     private Button sendButton;
-    private MessageAdapter chatAdapter;
+    private GroupMessageAdapter chatAdapter;
     private List<MessageModel> messageList;
-    private String receiverId;
-    private String receiverName;
-    private String receiverPhotoUrl;
     private String groupName, groupId;
     public TextView groupNameTextView;
     public ImageView groupPhoto;
     public ImageView backImageView;
     private String senderName;
     private static final int REQUEST_SELECT_GROUP_ICON = 2;
-    private static Set<String> generatedIds = new HashSet<>();
-    String roomId, currentUserId;
+    String currentUserId;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     FirebaseUser currentUser;
 
@@ -78,17 +73,13 @@ public class GroupChatActivity extends AppCompatActivity {
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUserId = currentUser.getUid();
-                    // Group chat mode
+        senderName = currentUser.getDisplayName();
 
         groupChatRoomRef = databaseReference.child("chatRooms").child("group").child(groupName).child("chats");
-        groupChatsByNameRef = databaseReference.child("chatRooms").child("groupChatsByName"); // Initialize reference
 
-
-
-        // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageList = new ArrayList<>();
-        chatAdapter = new MessageAdapter( messageList, currentUserId);
+        chatAdapter = new GroupMessageAdapter(messageList, currentUserId);
         recyclerView.setAdapter(chatAdapter);
 
         // Set up send button click listener

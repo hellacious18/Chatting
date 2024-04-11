@@ -87,6 +87,7 @@ public class ChatActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUserId = currentUser.getUid();
+        senderName = currentUser.getDisplayName();
 
         chatRoomRef = databaseReference.child("chatRooms").child("singleUserChats")
                 .child(currentUser.getDisplayName()).child(receiverName);
