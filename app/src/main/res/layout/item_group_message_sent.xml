@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
+    android:layout_margin="1dp"
     android:layout_gravity="end"
     android:layout_marginRight="0dp"
     android:layout_alignParentRight="true"
-    android:padding="5dp">
+    android:padding="1dp">
 
     <TextView
         android:id="@+id/receiver"
@@ -18,6 +18,7 @@
         android:text="sender"
         android:textColor="@android:color/black"
         android:textSize="15dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,6 +28,7 @@
         app:layout_constraintTop_toBottomOf="@id/receiver"
         android:background="@drawable/sent_message_background"
         app:layout_constraintEnd_toEndOf="parent"
+        android:padding="2dp"
         android:orientation="vertical">
 
     <TextView
@@ -44,6 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/messageTextView"
         android:text="time stamp"
+        android:padding="1dp"
         android:textColor="@color/black"
         android:textSize="10dp" />
 
