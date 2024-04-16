@@ -69,10 +69,18 @@
             android:id="@+id/messageEditText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_toStartOf="@+id/sendButton"
+            android:layout_toStartOf="@+id/btn_file_attach"
             android:hint="Type a message..."
             android:inputType="textMultiLine"
             android:layout_margin="1dp"/>
+
+        <Button
+            android:id="@+id/btn_file_attach"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="1dp"
+            android:background="@drawable/ic_attachment"
+            android:layout_toStartOf="@id/sendButton"/>
 
         <Button
             android:id="@+id/sendButton"

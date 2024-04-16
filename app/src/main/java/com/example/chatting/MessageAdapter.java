@@ -1,14 +1,20 @@
 package com.example.chatting;
 
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -57,17 +63,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
         TextView timeStampTextView;
+        ImageView image;
 
         MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-            Log.d("view", String.valueOf(itemView));
             messageTextView = itemView.findViewById(R.id.messageTextView);
             timeStampTextView = itemView.findViewById(R.id.timeStamp);
+            image = itemView.findViewById(R.id.image_message);
         }
 
         void bind(MessageModel message) {
-            messageTextView.setText(message.getContent());
             timeStampTextView.setText(getFormattedTime(message.getTimestamp()));
+            if(message.getImageUrl()!=null) {
+                messageTextView.setVisibility(View.INVISIBLE);
+                image.setVisibility(View.VISIBLE);
+                Glide.with(itemView).load(message.getImageUrl()).into(image);
+            }else {
+                messageTextView.setText(message.getContent());
+            }
         }
 
         private String getFormattedTime(long timestamp) {

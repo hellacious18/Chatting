@@ -160,8 +160,9 @@ public class GroupChatActivity extends AppCompatActivity {
             String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             long timestamp = System.currentTimeMillis();
             String messageId = groupChatRoomRef.push().getKey();
+            String imageUrl = null;
 
-            MessageModel newMessage = new MessageModel(senderId, messageContent, timestamp, messageId, senderName);
+            MessageModel newMessage = new MessageModel(senderId, messageContent, imageUrl, timestamp, messageId, senderName);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 
