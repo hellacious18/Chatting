@@ -28,9 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class GroupChatActivity extends AppCompatActivity {
 
@@ -161,8 +159,9 @@ public class GroupChatActivity extends AppCompatActivity {
             long timestamp = System.currentTimeMillis();
             String messageId = groupChatRoomRef.push().getKey();
             String imageUrl = null;
+            String pdfUrl = null;
 
-            MessageModel newMessage = new MessageModel(senderId, messageContent, imageUrl, timestamp, messageId, senderName);
+            MessageModel newMessage = new MessageModel(senderId, messageContent, imageUrl,pdfUrl, timestamp, messageId, senderName);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 

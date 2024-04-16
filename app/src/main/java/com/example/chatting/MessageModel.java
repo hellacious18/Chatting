@@ -6,7 +6,7 @@ import java.util.Objects;
 public class MessageModel implements Serializable {
     private String senderId;
     private String content;
-    String imageUrl;
+    String imageUrl, pdfUrl;
     private String senderName;
     private String messageId;
     private long timestamp;
@@ -34,10 +34,11 @@ public class MessageModel implements Serializable {
     }
 
     // Constructor
-    public MessageModel(String senderId, String content, String imageUrl, long timestamp, String messageId, String senderName) {
+    public MessageModel(String senderId, String content, String imageUrl, String pdfUrl, long timestamp, String messageId, String senderName) {
         this.senderId = senderId;
         this.content = content;
         this.imageUrl = imageUrl;
+        this.pdfUrl = pdfUrl;
         this.timestamp = timestamp;
         this.messageId = messageId;
         this.senderName = senderName;
@@ -82,6 +83,14 @@ public class MessageModel implements Serializable {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getPdfUrl() {
+        return pdfUrl;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
     }
 
     @Override

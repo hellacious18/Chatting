@@ -35,16 +35,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class ChatActivity extends AppCompatActivity {
@@ -63,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
     TextView receiverNameTextView;
     ImageView receiverPhotoImageView;
     ImageView backImageView;
-    private String senderName, checker, myUrl;
+    private String senderName, checker, imageurl, pdfUrl;
     private static final int REQUEST_SELECT_GROUP_ICON = 2;
     private static Set<String> generatedIds = new HashSet<>();
     String roomId, currentUserId;
@@ -124,8 +117,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 CharSequence options[] = new CharSequence[]{
                         "Images",
-                        "PDF Files",
-                        "WORD Files"
+                        "PDF Files"
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
                 builder.setTitle("Select the file");
@@ -141,9 +133,10 @@ public class ChatActivity extends AppCompatActivity {
                         }
                         if(which == 1){
                             checker = "pdf";
-                        }
-                        if(which == 2){
-                            checker = "docx";
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/pdf");
+                            startActivityForResult(intent.createChooser(intent, "Select Pdf"), 300);
                         }
                     }
                 });
@@ -221,11 +214,12 @@ public class ChatActivity extends AppCompatActivity {
         if (!messageContent.isEmpty()) {
             String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             long timestamp = System.currentTimeMillis();
-            String imageurl = null;
+            imageurl = null;
+            pdfUrl = null;
             String messageId = chatRoomRef.push().getKey();
             String messageIdR = RchatRoomREf.push().getKey();
 
-            MessageModel newMessage = new MessageModel(senderId, messageContent, imageurl, timestamp, messageId, senderName);
+            MessageModel newMessage = new MessageModel(senderId, messageContent, imageurl, pdfUrl, timestamp, messageId, senderName);
             messageList.add(newMessage);
             chatAdapter.notifyDataSetChanged();
 
@@ -287,27 +281,81 @@ public class ChatActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Log.d("check", String.valueOf(task));
                             Uri downloadUrl = task.getResult();
-                            myUrl = downloadUrl.toString();
+                            imageurl = downloadUrl.toString();
                             String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                             long timestamp = System.currentTimeMillis();
                             String messageId = chatRoomRef.push().getKey();
                             String messageIdR = RchatRoomREf.push().getKey();
                             String message = null;
+                            String pdfUrl = null;
 
-                            MessageModel newMessage = new MessageModel(senderId, message, myUrl, timestamp, messageId, senderName);
+                            MessageModel newMessage = new MessageModel(senderId, message, imageurl, pdfUrl, timestamp, messageId, senderName);
                             messageList.add(newMessage);
                             chatAdapter.notifyDataSetChanged();
 
                             // Push the message object to Firebase Realtime Database
                             chatRoomRef.child(messageId).setValue(newMessage);
                             RchatRoomREf.child(messageIdR).setValue(newMessage);
-                            Log.d("check", myUrl);
                         }
                     }
                 });
 
             }else{
                 Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+            }
+        }
+        if(requestCode == 300 && resultCode == RESULT_OK && data != null && data.getData() != null)
+        {
+            fileuri = data.getData();
+
+            if(!checker.equals("pdf")){
+
+            }
+            else if(checker.equals("pdf")){
+
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Pdf");
+
+                String messageId = chatRoomRef.getKey();
+                StorageReference filepath =  storageReference.child(messageId+ "."+ "pdf");
+
+                upload = filepath.putFile(fileuri);
+
+                upload.continueWithTask(new Continuation() {
+                    @Override
+                    public Object then(@NonNull Task task) throws Exception {
+                        if(!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        Log.d("check", String.valueOf(filepath));
+                        return filepath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if(task.isSuccessful()){
+                            Log.d("check", String.valueOf(task));
+                            Uri downloadUrl = task.getResult();
+                            pdfUrl = downloadUrl.toString();
+                            String senderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            long timestamp = System.currentTimeMillis();
+                            String messageId = chatRoomRef.push().getKey();
+                            String messageIdR = RchatRoomREf.push().getKey();
+                            String message = null;
+                            String imageurl = null;
+
+                            MessageModel newMessage = new MessageModel(senderId, message, imageurl, pdfUrl, timestamp, messageId, senderName);
+                            messageList.add(newMessage);
+                            chatAdapter.notifyDataSetChanged();
+
+                            // Push the message object to Firebase Realtime Database
+                            chatRoomRef.child(messageId).setValue(newMessage);
+                            RchatRoomREf.child(messageIdR).setValue(newMessage);
+                        }
+                    }
+                });
+
+            }else{
+                Toast.makeText(this, "No pdf selected", Toast.LENGTH_SHORT).show();
             }
         }
     }
